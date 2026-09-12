@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Экзамен по Deep Learning — подготовка</title>
+<meta name="description" content="Конспект по 16 темам курса Deep Learning, шпаргалка, тренажёр с интервальным повторением, режим экзамена и калькуляторы.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&display=swap">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/layout.css">
+<link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="brand">
+      <b>Экзамен по Deep Learning</b>
+      <span id="brandMeta">16 тем</span>
+    </div>
+    <button class="icon-btn" id="navToggle" type="button" aria-expanded="false">Темы</button>
+    <nav class="tabs" role="tablist" aria-label="Разделы">
+      <button role="tab" aria-selected="true" data-pane="theory" type="button">Теория</button>
+      <button role="tab" aria-selected="false" data-pane="cheat" type="button">Шпаргалка</button>
+      <button role="tab" aria-selected="false" data-pane="train" type="button">Тренажёр</button>
+      <button role="tab" aria-selected="false" data-pane="exam" type="button">Экзамен</button>
+      <button role="tab" aria-selected="false" data-pane="tools" type="button">Калькуляторы</button>
+    </nav>
+    <button class="icon-btn" id="themeBtn" type="button" title="Светлая / тёмная тема" aria-label="Переключить тему">◐</button>
+  </div>
+</header>
+
+<div class="shell" id="shell">
+
+  <nav class="side" id="side" aria-label="Содержание">
+    <div class="progress">
+      <div class="row"><span>Пройдено тем</span><b id="pgLabel">0 / 16</b></div>
+      <div class="bar"><i id="pgBar"></i></div>
+    </div>
+    <h3>Содержание</h3>
+    <ul class="toc" id="toc"></ul>
+  </nav>
+
+  <main id="main">
+
+    <!-- ТЕОРИЯ -->
+    <section class="pane" id="pane-theory" aria-labelledby="tab-theory">
+      <div class="prose" id="theory"><p class="loading">Загружаю конспект…</p></div>
+    </section>
+
+    <!-- ШПАРГАЛКА -->
+    <section class="pane" id="pane-cheat" hidden>
+      <div class="prose" id="cheat"></div>
+    </section>
+
+    <!-- ТРЕНАЖЁР -->
+    <section class="pane" id="pane-train" hidden>
+      <div class="prose"><h1>Тренажёр</h1>
+        <p>Карточки с интервальным повторением: чем хуже вы помните вопрос, тем чаще он возвращается.
+           Прогресс хранится в браузере — можно выгрузить и перенести на другое устройство.</p>
+      </div>
+
+      <div class="statgrid" id="srsStats"></div>
+
+      <div class="toolbar">
+        <label class="search"><span>ПОИСК</span>
+          <input id="qSearch" type="search" placeholder="термин, формула, тема…" autocomplete="off">
+        </label>
+        <label class="selectwrap"><span>Режим</span>
+          <select id="srsMode">
+            <option value="due">К повторению</option>
+            <option value="all">Все подряд</option>
+            <option value="hard">Трудные</option>
+            <option value="new">Только новые</option>
+          </select>
+        </label>
+        <button class="btn" id="listBtn" type="button">Списком</button>
+      </div>
+
+      <div class="chips" id="blockChips"></div>
+
+      <div id="cardWrap">
+        <article class="card" id="card">
+          <div class="meta" id="cardMeta"></div>
+          <h2 class="q" id="cardQ"></h2>
+          <div class="a" id="cardA" hidden></div>
+        </article>
+
+        <div class="controls" id="revealRow">
+          <button class="btn primary" id="revealBtn" type="button">Показать ответ</button>
+          <button class="btn" id="skipBtn" type="button">Пропустить</button>
+          <span class="count" id="cardCount"></span>
+        </div>
+
+        <div class="controls grades" id="gradeRow" hidden>
+          <button class="btn grade g1" data-grade="1" type="button">Не знал<em>снова</em></button>
+          <button class="btn grade g2" data-grade="2" type="button">Трудно<em id="iv2">1 д</em></button>
+          <button class="btn grade g3" data-grade="3" type="button">Знаю<em id="iv3">3 д</em></button>
+          <button class="btn grade g4" data-grade="4" type="button">Легко<em id="iv4">7 д</em></button>
+        </div>
+      </div>
+
+      <div class="qa" id="qaList" hidden></div>
+
+      <div class="sub" id="srsFooter">
+        <button class="btn small" id="exportBtn" type="button">Выгрузить прогресс</button>
+        <button class="btn small" id="importBtn" type="button">Загрузить прогресс</button>
+        <button class="btn small danger" id="resetBtn" type="button">Сбросить</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+      </div>
+    </section>
+
+    <!-- ЭКЗАМЕН -->
+    <section class="pane" id="pane-exam" hidden>
+      <div class="prose"><h1>Режим экзамена</h1></div>
+
+      <div id="examSetup">
+        <p class="lede">Случайный билет из банка вопросов с таймером. Отвечайте вслух или письменно,
+           затем открывайте эталонный ответ и честно отмечайте, совпал он или нет.</p>
+        <div class="setup">
+          <label class="selectwrap"><span>Вопросов</span>
+            <select id="examCount"><option>10</option><option selected>15</option><option>20</option><option>30</option></select>
+          </label>
+          <label class="selectwrap"><span>Время</span>
+            <select id="examTime">
+              <option value="0">без лимита</option>
+              <option value="10">10 минут</option>
+              <option value="20" selected>20 минут</option>
+              <option value="40">40 минут</option>
+            </select>
+          </label>
+          <label class="selectwrap"><span>Блоки</span>
+            <select id="examBlocks"><option value="">все</option></select>
+          </label>
+          <button class="btn primary" id="examStart" type="button">Начать</button>
+        </div>
+        <div id="examHistory"></div>
+      </div>
+
+      <div id="examRun" hidden>
+        <div class="examtop">
+          <div class="timer" id="examTimer">20:00</div>
+          <div class="bar wide"><i id="examBar"></i></div>
+          <div class="count" id="examCounter">1 / 15</div>
+          <button class="btn small" id="examAbort" type="button">Завершить</button>
+        </div>
+        <article class="card">
+          <div class="meta" id="examMeta"></div>
+          <h2 class="q" id="examQ"></h2>
+          <div class="a" id="examA" hidden></div>
+        </article>
+        <div class="controls">
+          <button class="btn primary" id="examReveal" type="button">Показать эталон</button>
+          <span class="hint" id="examHint">Сначала ответьте сами — так режим работает.</span>
+        </div>
+        <div class="controls" id="examJudge" hidden>
+          <button class="btn grade g1" data-ok="0" type="button">Не ответил</button>
+          <button class="btn grade g2" data-ok="1" type="button">Частично</button>
+          <button class="btn grade g4" data-ok="2" type="button">Ответил верно</button>
+        </div>
+      </div>
+
+      <div id="examResult" hidden></div>
+    </section>
+
+    <!-- КАЛЬКУЛЯТОРЫ -->
+    <section class="pane" id="pane-tools" hidden>
+      <div class="prose"><h1>Калькуляторы</h1>
+        <p>Расчётные задачи на экзамене сводятся к двум формулам. Здесь можно прогнать свои числа
+           и увидеть подстановку целиком — как её надо написать в билете.</p>
+      </div>
+
+      <div class="toolgrid">
+
+        <section class="tool">
+          <h2>Свёрточный слой</h2>
+          <div class="fields">
+            <label>Вход H<input type="number" id="cH" value="28" min="1"></label>
+            <label>Вход W<input type="number" id="cW" value="28" min="1"></label>
+            <label>Ядро k<input type="number" id="cK" value="7" min="1"></label>
+            <label>Stride s<input type="number" id="cS" value="1" min="1"></label>
+            <label>Padding p<input type="number" id="cP" value="0" min="0"></label>
+            <label>Dilation d<input type="number" id="cD" value="1" min="1"></label>
+            <label>C_in<input type="number" id="cCin" value="1" min="1"></label>
+            <label>C_out<input type="number" id="cCout" value="32" min="1"></label>
+            <label class="check"><input type="checkbox" id="cBias" checked> bias</label>
+          </div>
+          <div class="readout" id="convOut"></div>
+        </section>
+
+        <section class="tool">
+          <h2>Полносвязный слой</h2>
+          <div class="fields">
+            <label>Вход n_in<input type="number" id="dIn" value="784" min="1"></label>
+            <label>Выход n_out<input type="number" id="dOut" value="128" min="1"></label>
+            <label class="check"><input type="checkbox" id="dBias" checked> bias</label>
+          </div>
+          <div class="readout" id="denseOut"></div>
+        </section>
+
+        <section class="tool wide">
+          <h2>Функции активации</h2>
+          <div class="chips" id="actChips"></div>
+          <canvas id="actCanvas" width="720" height="320" aria-label="График функции активации и её производной"></canvas>
+          <div class="readout" id="actOut"></div>
+        </section>
+
+        <section class="tool wide">
+          <h2>Softmax</h2>
+          <p class="hint">Логиты через запятую — посмотрите, как вектор превращается в распределение с суммой 1
+             и что делает температура.</p>
+          <div class="fields">
+            <label class="grow">Логиты<input type="text" id="smIn" value="2, 1, 0.1"></label>
+            <label>Температура T<input type="number" id="smT" value="1" step="0.1" min="0.1"></label>
+          </div>
+          <div class="readout" id="smOut"></div>
+        </section>
+
+      </div>
+    </section>
+
+    <footer class="footnote">
+      <p>Материал собран под темы курса и форматы вопросов из билетов. Спорные формулировки
+         («что не борется с переобучением», «сопоставьте функции потерь») в разных билетах различаются —
+         сверяйтесь с конспектом лектора.</p>
+      <p>Контент лежит в <code>content/</code> обычным markdown — правьте и дополняйте.
+         Как это устроено, описано в <code>README.md</code>.</p>
+    </footer>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [], displayMath: [['$$','$$']], processEscapes: false },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'], enableMenu: false },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

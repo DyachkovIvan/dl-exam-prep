@@ -1,0 +1,91 @@
+/* Палитра и типографика. Меняйте только здесь — остальные файлы берут цвета отсюда. */
+
+:root{
+  /* поверхности */
+  --bg:#F8F9FB;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F5;
+  --surface-3:#E3E9EF;
+
+  /* текст */
+  --ink:#0F151C;
+  --ink-2:#414E5C;
+  --ink-3:#6B7986;
+
+  /* линии */
+  --rule:#D9E0E8;
+  --rule-strong:#BCC7D2;
+
+  /* акцент */
+  --accent:#0C6D70;
+  --accent-ink:#0C6D70;
+  --accent-soft:#E0EFEE;
+  --on-accent:#FFFFFF;
+
+  /* семантика */
+  --signal:#A81F3B;      /* ловушки, ошибки */
+  --signal-soft:#FAE7EB;
+  --ok:#2C6B3C;
+  --ok-soft:#E4EFE6;
+  --warn:#8A5A12;
+  --warn-soft:#F7EEDD;
+
+  --shadow:0 1px 2px rgba(15,21,28,.05), 0 8px 24px -16px rgba(15,21,28,.25);
+  --radius:10px;
+
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --measure:72ch;
+}
+
+/* тёмная тема по системной настройке (если пользователь не выбрал светлую явно) */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1217;
+    --surface:#141B22;
+    --surface-2:#1B242D;
+    --surface-3:#243039;
+    --ink:#E9EEF3;
+    --ink-2:#AFBCC8;
+    --ink-3:#7E8C99;
+    --rule:#27323C;
+    --rule-strong:#3A4854;
+    --accent:#4FC6BD;
+    --accent-ink:#6FD6CE;
+    --accent-soft:#0F2C2C;
+    --on-accent:#0D1217;
+    --signal:#EF7A90;
+    --signal-soft:#33161D;
+    --ok:#77C287;
+    --ok-soft:#16281B;
+    --warn:#E0B564;
+    --warn-soft:#2B2312;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+
+/* явный выбор тёмной темы кнопкой */
+:root[data-theme="dark"]{
+  --bg:#0D1217;
+  --surface:#141B22;
+  --surface-2:#1B242D;
+  --surface-3:#243039;
+  --ink:#E9EEF3;
+  --ink-2:#AFBCC8;
+  --ink-3:#7E8C99;
+  --rule:#27323C;
+  --rule-strong:#3A4854;
+  --accent:#4FC6BD;
+  --accent-ink:#6FD6CE;
+  --accent-soft:#0F2C2C;
+  --on-accent:#0D1217;
+  --signal:#EF7A90;
+  --signal-soft:#33161D;
+  --ok:#77C287;
+  --ok-soft:#16281B;
+  --warn:#E0B564;
+  --warn-soft:#2B2312;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}

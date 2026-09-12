@@ -1,0 +1,188 @@
+{
+  "theory": [
+    {
+      "num": 0,
+      "id": "intro",
+      "title": "Как устроен экзамен",
+      "file": "content/theory/00-intro.md"
+    },
+    {
+      "num": 1,
+      "id": "optimizers",
+      "title": "Стохастическая оптимизация: SGD, Momentum, NAG, AdaGrad, RMSProp, Adam",
+      "file": "content/theory/01-optimizers.md"
+    },
+    {
+      "num": 2,
+      "id": "backprop",
+      "title": "Обратное распространение ошибки (Backpropagation)",
+      "file": "content/theory/02-backprop.md"
+    },
+    {
+      "num": 3,
+      "id": "regularization",
+      "title": "Регуляризация: Dropout, Batch Normalization (и соседи)",
+      "file": "content/theory/03-regularization.md"
+    },
+    {
+      "num": 4,
+      "id": "activations",
+      "title": "Функции активации",
+      "file": "content/theory/04-activations.md"
+    },
+    {
+      "num": 5,
+      "id": "mlp",
+      "title": "Сети прямого распространения: FCNN / MLP",
+      "file": "content/theory/05-mlp.md"
+    },
+    {
+      "num": 6,
+      "id": "cnn",
+      "title": "Свёрточные нейронные сети (CNN)",
+      "file": "content/theory/06-cnn.md"
+    },
+    {
+      "num": 7,
+      "id": "rnn",
+      "title": "Рекуррентные сети: RNN, BPTT, BiRNN, LSTM, GRU",
+      "file": "content/theory/07-rnn.md"
+    },
+    {
+      "num": 8,
+      "id": "gcn",
+      "title": "Графовые нейронные сети: GCN",
+      "file": "content/theory/08-gcn.md"
+    },
+    {
+      "num": 9,
+      "id": "graphsage",
+      "title": "GraphSAGE",
+      "file": "content/theory/09-graphsage.md"
+    },
+    {
+      "num": 10,
+      "id": "transformers",
+      "title": "Трансформеры: внимание, encoder-decoder, seq2seq",
+      "file": "content/theory/10-transformers.md"
+    },
+    {
+      "num": 11,
+      "id": "autoencoders",
+      "title": "Автокодировщики и VAE",
+      "file": "content/theory/11-autoencoders.md"
+    },
+    {
+      "num": 12,
+      "id": "gan",
+      "title": "GAN: устройство, обучение, функции потерь",
+      "file": "content/theory/12-gan.md"
+    },
+    {
+      "num": 13,
+      "id": "dcgan",
+      "title": "DCGAN",
+      "file": "content/theory/13-dcgan.md"
+    },
+    {
+      "num": 14,
+      "id": "cgan",
+      "title": "CGAN (Conditional GAN)",
+      "file": "content/theory/14-cgan.md"
+    },
+    {
+      "num": 15,
+      "id": "diffusion",
+      "title": "Диффузионные модели",
+      "file": "content/theory/15-diffusion.md"
+    },
+    {
+      "num": 16,
+      "id": "rl",
+      "title": "Обучение с подкреплением: MDP, Q-обучение, DQN",
+      "file": "content/theory/16-rl.md"
+    }
+  ],
+  "questions": [
+    {
+      "block": "A",
+      "title": "Оптимизация и обучение",
+      "file": "content/questions/A-optimization.md",
+      "count": 8
+    },
+    {
+      "block": "B",
+      "title": "Backpropagation",
+      "file": "content/questions/B-backprop.md",
+      "count": 6
+    },
+    {
+      "block": "C",
+      "title": "Функции активации",
+      "file": "content/questions/C-activations.md",
+      "count": 8
+    },
+    {
+      "block": "D",
+      "title": "Полносвязные сети, инициализация, гиперпараметры",
+      "file": "content/questions/D-mlp.md",
+      "count": 8
+    },
+    {
+      "block": "E",
+      "title": "Регуляризация",
+      "file": "content/questions/E-regularization.md",
+      "count": 7
+    },
+    {
+      "block": "F",
+      "title": "CNN",
+      "file": "content/questions/F-cnn.md",
+      "count": 12
+    },
+    {
+      "block": "G",
+      "title": "RNN, LSTM, GRU",
+      "file": "content/questions/G-rnn.md",
+      "count": 5
+    },
+    {
+      "block": "H",
+      "title": "Графовые сети",
+      "file": "content/questions/H-graphs.md",
+      "count": 6
+    },
+    {
+      "block": "I",
+      "title": "Трансформеры",
+      "file": "content/questions/I-transformers.md",
+      "count": 7
+    },
+    {
+      "block": "J",
+      "title": "Автокодировщики и VAE",
+      "file": "content/questions/J-autoencoders.md",
+      "count": 7
+    },
+    {
+      "block": "K",
+      "title": "GAN",
+      "file": "content/questions/K-gan.md",
+      "count": 10
+    },
+    {
+      "block": "L",
+      "title": "Диффузия",
+      "file": "content/questions/L-diffusion.md",
+      "count": 6
+    },
+    {
+      "block": "M",
+      "title": "Обучение с подкреплением",
+      "file": "content/questions/M-rl.md",
+      "count": 8
+    }
+  ],
+  "cheatsheet": "content/cheatsheet.md",
+  "express": "content/quiz/express.md"
+}
