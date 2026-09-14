@@ -14,14 +14,17 @@ export function renderMarkdown(md) {
     return `\n\n${MATH_OPEN}${math.length - 1}${MATH_CLOSE}\n\n`;
   });
 
+  /* «<» в формуле (y_{<t}) браузер принял бы за начало тега; MathJax читает текст уже раскодированным */
+  const tex = i => math[+i].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   let html = window.marked.parse(protectedMd);
   html = html.replace(
     new RegExp(`<p>\\s*${MATH_OPEN}(\\d+)${MATH_CLOSE}\\s*</p>`, 'g'),
-    (_, i) => `<div class="fx">$$${math[+i]}$$</div>`
+    (_, i) => `<div class="fx">$$${tex(i)}$$</div>`
   );
   html = html.replace(
     new RegExp(`${MATH_OPEN}(\\d+)${MATH_CLOSE}`, 'g'),
-    (_, i) => `<span class="fx">$$${math[+i]}$$</span>`
+    (_, i) => `<span class="fx">$$${tex(i)}$$</span>`
   );
   return html;
 }
