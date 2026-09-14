@@ -70,6 +70,18 @@ a{color:var(--accent-ink);text-underline-offset:2px}
   text-transform:uppercase;color:var(--signal);margin-bottom:7px;
 }
 
+/* «Проверь себя»: раскрывающийся блок в конце темы */
+.prose details{
+  margin:0 0 20px;border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;background:var(--surface);padding:0 16px;
+}
+.prose details summary{
+  cursor:pointer;padding:12px 0;font:600 .72rem/1 var(--mono);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent-ink);
+}
+.prose details[open]{padding-bottom:6px}
+.prose details[open] summary{border-bottom:1px solid var(--rule);margin-bottom:12px}
+
 /* формулы */
 .fx{
   background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--accent);
