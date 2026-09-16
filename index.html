@@ -79,6 +79,13 @@
             <option value="new">Только новые</option>
           </select>
         </label>
+        <label class="selectwrap"><span>Банк</span>
+          <select id="bankFilter">
+            <option value="">все вопросы</option>
+            <option value="exam">экзамен: P0–P1</option>
+            <option value="tests">только тесты</option>
+          </select>
+        </label>
         <button class="btn" id="listBtn" type="button">Списком</button>
       </div>
 
@@ -88,6 +95,7 @@
         <article class="card" id="card">
           <div class="meta" id="cardMeta"></div>
           <h2 class="q" id="cardQ"></h2>
+          <div class="quiz" id="cardQuiz" hidden></div>
           <div class="a" id="cardA" hidden></div>
         </article>
 
@@ -120,8 +128,9 @@
       <div class="prose"><h1>Режим экзамена</h1></div>
 
       <div id="examSetup">
-        <p class="lede">Случайный билет из банка вопросов с таймером. Отвечайте вслух или письменно,
-           затем открывайте эталонный ответ и честно отмечайте, совпал он или нет.</p>
+        <p class="lede">Случайный билет из банка вопросов с таймером. Тесты с вариантами проверяются
+           автоматически; на открытые вопросы отвечайте вслух или письменно, затем открывайте эталон
+           и честно отмечайте, совпал он или нет.</p>
         <div class="setup">
           <label class="selectwrap"><span>Вопросов</span>
             <select id="examCount"><option>10</option><option selected>15</option><option>20</option><option>30</option></select>
@@ -137,8 +146,16 @@
           <label class="selectwrap"><span>Блоки</span>
             <select id="examBlocks"><option value="">все</option></select>
           </label>
+          <label class="selectwrap"><span>Банк</span>
+            <select id="examBank">
+              <option value="">все вопросы</option>
+              <option value="exam">экзамен: P0–P1</option>
+              <option value="tests">только тесты</option>
+            </select>
+          </label>
           <button class="btn primary" id="examStart" type="button">Начать</button>
         </div>
+        <p class="hint" id="examEmpty" hidden>Под выбранные блок и банк не попал ни один вопрос.</p>
         <div id="examHistory"></div>
       </div>
 
@@ -152,10 +169,12 @@
         <article class="card">
           <div class="meta" id="examMeta"></div>
           <h2 class="q" id="examQ"></h2>
+          <div class="quiz" id="examQuiz" hidden></div>
           <div class="a" id="examA" hidden></div>
         </article>
         <div class="controls">
           <button class="btn primary" id="examReveal" type="button">Показать эталон</button>
+          <button class="btn primary" id="examNext" type="button" hidden>Дальше</button>
           <span class="hint" id="examHint">Сначала ответьте сами — так режим работает.</span>
         </div>
         <div class="controls" id="examJudge" hidden>

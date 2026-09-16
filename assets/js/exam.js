@@ -1,7 +1,9 @@
-/* Режим экзамена: случайный билет, таймер, самопроверка, разбор по блокам. */
+/* Режим экзамена: случайный билет, таймер, самопроверка, разбор по блокам.
+   Тесты с вариантами проверяются автоматически, открытые вопросы оцениваются вручную. */
 
 import { renderMarkdown, renderInline, decorate, typeset } from './md.js';
 import { store, plural } from './store.js';
+import { isInteractive, mountQuiz, quizStatic } from './quiz.js';
 
 export function initExam(questions) {
   const el = id => document.getElementById(id);
@@ -35,17 +37,31 @@ export function initExam(questions) {
     return a;
   }
 
+  function inPool(q) {
+    const block = el('examBlocks').value;
+    const bank = el('examBank').value;
+    if (block && q.block !== block) return false;
+    if (bank === 'exam' && !['P0', 'P1'].includes(q.priority)) return false;
+    if (bank === 'tests' && !isInteractive(q)) return false;
+    return true;
+  }
+
   /* ---------- запуск ---------- */
   el('examStart').addEventListener('click', () => {
     const wanted = Number(el('examCount').value);
-    const block = el('examBlocks').value;
-    const pool = block ? questions.filter(q => q.block === block) : questions;
-    if (!pool.length) return;
+    const pool = questions.filter(inPool);
+    if (!pool.length) {
+      el('examEmpty').hidden = false;
+      return;
+    }
+    el('examEmpty').hidden = true;
 
     run = {
       items: shuffled(pool).slice(0, Math.min(wanted, pool.length)),
       index: 0,
       scores: [],
+      quiz: null,
+      auto: null,
       minutes: Number(el('examTime').value),
       endsAt: null,
       startedAt: Date.now()
@@ -80,34 +96,76 @@ export function initExam(questions) {
   /* ---------- вопрос ---------- */
   function renderQuestion() {
     const q = run.items[run.index];
-    el('examMeta').innerHTML = `<i>${q.id}</i>${q.blockTitle}`;
+    el('examMeta').innerHTML = `<i>${q.id}</i>${q.blockTitle}${isInteractive(q) ? '<span class="tag">тест</span>' : ''}`;
     el('examQ').innerHTML = renderInline(q.question);
+
     const a = el('examA');
     a.innerHTML = renderMarkdown(q.answer);
     decorate(a);
     a.hidden = true;
+
+    run.auto = null;
+    run.quiz = null;
+    const box = el('examQuiz');
+    if (isInteractive(q)) {
+      run.quiz = mountQuiz(box, q, ({ score }) => {
+        run.auto = score;
+        showAnswer();
+        el('examJudge').hidden = true;
+        el('examNext').hidden = false;
+        el('examNext').focus();
+      });
+    } else {
+      box.hidden = true;
+      box.innerHTML = '';
+    }
+
     el('examReveal').hidden = false;
+    el('examReveal').textContent = isInteractive(q) ? 'Сдаться и показать ответ' : 'Показать эталон';
+    el('examHint').textContent = isInteractive(q)
+      ? 'Выберите ответ и нажмите «Проверить» — баллы выставятся сами.'
+      : 'Сначала ответьте сами — так режим работает.';
     el('examHint').hidden = false;
     el('examJudge').hidden = true;
+    el('examNext').hidden = true;
     el('examCounter').textContent = `${run.index + 1} / ${run.items.length}`;
     el('examBar').style.width = `${(run.index / run.items.length) * 100}%`;
   }
 
-  el('examReveal').addEventListener('click', () => {
-    el('examA').hidden = false;
+  function showAnswer() {
+    el('examA').hidden = !run.items[run.index].answer;
     el('examReveal').hidden = true;
     el('examHint').hidden = true;
-    el('examJudge').hidden = false;
     typeset(el('examA'));
+  }
+
+  function advance(score) {
+    run.scores.push({ q: run.items[run.index], score });
+    run.index++;
+    if (run.index >= run.items.length) finish(false);
+    else renderQuestion();
+  }
+
+  el('examReveal').addEventListener('click', () => {
+    if (!run) return;
+    if (run.quiz) {
+      // сдался в тесте — показываем верный ответ, балл 0
+      run.quiz.reveal();
+      run.auto = 0;
+      showAnswer();
+      el('examNext').hidden = false;
+      return;
+    }
+    showAnswer();
+    el('examJudge').hidden = false;
   });
+
+  el('examNext').addEventListener('click', () => { if (run) advance(run.auto ?? 0); });
 
   el('examJudge').addEventListener('click', e => {
     const btn = e.target.closest('[data-ok]');
     if (!btn || !run) return;
-    run.scores.push({ q: run.items[run.index], score: Number(btn.dataset.ok) });
-    run.index++;
-    if (run.index >= run.items.length) finish(false);
-    else renderQuestion();
+    advance(Number(btn.dataset.ok));
   });
 
   /* ---------- итоги ---------- */
@@ -135,7 +193,7 @@ export function initExam(questions) {
     el('examResult').innerHTML = `
       <div class="result">
         <div class="scorebig"><b>${percent}%</b><span>${got} из ${max} баллов${timeout ? ' · время вышло' : aborted ? ' · завершено досрочно' : ''}</span></div>
-        <p class="hint">${answered.length} ${plural(answered.length, 'вопрос', 'вопроса', 'вопросов')} за ${minutes || '<1'} мин. Каждый вопрос: 2 балла за полный ответ, 1 за частичный.</p>
+        <p class="hint">${answered.length} ${plural(answered.length, 'вопрос', 'вопроса', 'вопросов')} за ${minutes || '<1'} мин. Каждый вопрос: 2 балла за полный ответ, 1 за частичный. Тесты проверяются автоматически.</p>
         <h2 class="secttl">По блокам</h2>
         <div class="bars">
           ${Object.entries(byBlock).map(([name, v]) => {
@@ -162,7 +220,7 @@ export function initExam(questions) {
         s.innerHTML = `<b>${q.id}</b>${renderInline(q.question)}`;
         const body = document.createElement('div');
         body.className = 'body';
-        body.innerHTML = renderMarkdown(q.answer);
+        body.innerHTML = quizStatic(q) + renderMarkdown(q.answer);
         decorate(body);
         d.append(s, body);
         d.addEventListener('toggle', () => { if (d.open) typeset(body); });

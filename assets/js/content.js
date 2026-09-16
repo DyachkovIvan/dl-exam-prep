@@ -39,13 +39,19 @@ export async function loadContent() {
   return { manifest, theory, questions, cheatsheet };
 }
 
-/** Разбор файла вопросов: «**A1. Текст**» и абзацы ответа до следующего вопроса. */
+/** Разбор файла вопросов: «**A1. Текст**» и абзацы ответа до следующего вопроса.
+
+    Внутри вопроса дополнительно распознаются (формат описан в quiz.js):
+    «- [ ] / - [x]» — варианты теста, «= …» и «~ строка :: …» — сопоставление,
+    «> 📌 … P0 …» — строка источника, из неё берётся приоритет P0–P3. */
 export function parseQuestions(md) {
   const out = [];
   let current = null;
+  const split = s => s.split(';').map(x => x.trim()).filter(Boolean);
   const flush = () => {
     if (current) {
       current.answer = current.answer.join('\n').trim();
+      if (current.match && !current.match.rows.length) current.match = null;
       out.push(current);
       current = null;
     }
@@ -56,10 +62,21 @@ export function parseQuestions(md) {
     const head = line.match(/^\*\*([A-ZА-Я]+\d+)\.\s+([\s\S]+?)\*\*\s*$/);
     if (head) {
       flush();
-      current = { id: head[1], question: head[2], answer: [] };
+      current = { id: head[1], question: head[2], answer: [], options: [], match: null, priority: null };
       return;
     }
-    if (current) current.answer.push(line);
+    if (!current) return;
+
+    const opt = line.match(/^- \[([ xX])\]\s+(.+)$/);
+    if (opt) { current.options.push({ text: opt[2].trim(), correct: opt[1] !== ' ' }); return; }
+    const cols = line.match(/^=\s+(.+)$/);
+    if (cols) { current.match = { cols: split(cols[1]), rows: [] }; return; }
+    const row = line.match(/^~\s+(.+?)\s*::\s*(.*)$/);
+    if (row && current.match) { current.match.rows.push({ label: row[1], correct: split(row[2]) }); return; }
+
+    const source = line.match(/^>\s*📌.*?\b(P[0-3])\b/);
+    if (source) current.priority = source[1];
+    current.answer.push(line);
   });
   flush();
   return out;
@@ -77,5 +94,6 @@ export function parseExpress(md) {
   };
   const qs = items(questionsPart);
   const as = items(answersPart);
-  return qs.map((question, i) => ({ id: `E${i + 1}`, question, answer: as[i] || '—' }));
+  // префикс «Э», а не «E»: иначе id совпадали с блоком E и карточки делили прогресс повторений
+  return qs.map((question, i) => ({ id: `Э${i + 1}`, question, answer: as[i] || '—' }));
 }
