@@ -108,43 +108,43 @@
       "block": "A",
       "title": "Оптимизация и обучение",
       "file": "content/questions/A-optimization.md",
-      "count": 8
+      "count": 3
     },
     {
       "block": "B",
       "title": "Backpropagation",
       "file": "content/questions/B-backprop.md",
-      "count": 6
+      "count": 4
     },
     {
       "block": "C",
       "title": "Функции активации",
       "file": "content/questions/C-activations.md",
-      "count": 8
+      "count": 2
     },
     {
       "block": "D",
       "title": "Полносвязные сети, инициализация, гиперпараметры",
       "file": "content/questions/D-mlp.md",
-      "count": 8
+      "count": 1
     },
     {
       "block": "E",
       "title": "Регуляризация",
       "file": "content/questions/E-regularization.md",
-      "count": 7
+      "count": 2
     },
     {
       "block": "F",
       "title": "CNN",
       "file": "content/questions/F-cnn.md",
-      "count": 12
+      "count": 4
     },
     {
       "block": "G",
       "title": "RNN, LSTM, GRU",
       "file": "content/questions/G-rnn.md",
-      "count": 5
+      "count": 1
     },
     {
       "block": "H",
@@ -162,13 +162,13 @@
       "block": "J",
       "title": "Автокодировщики и VAE",
       "file": "content/questions/J-autoencoders.md",
-      "count": 7
+      "count": 6
     },
     {
       "block": "K",
       "title": "GAN",
       "file": "content/questions/K-gan.md",
-      "count": 10
+      "count": 8
     },
     {
       "block": "L",
@@ -181,6 +181,30 @@
       "title": "Обучение с подкреплением",
       "file": "content/questions/M-rl.md",
       "count": 8
+    },
+    {
+      "block": "N",
+      "title": "Экзамен: основы, активации, оптимизация, backprop, инициализация",
+      "file": "content/questions/N-exam-basics.md",
+      "count": 50
+    },
+    {
+      "block": "O",
+      "title": "Экзамен: CNN, pooling, RNN, LSTM",
+      "file": "content/questions/O-exam-cnn-rnn.md",
+      "count": 20
+    },
+    {
+      "block": "P",
+      "title": "Экзамен: автокодировщики, GAN, потери, нормализация, регуляризация",
+      "file": "content/questions/P-exam-gen-reg.md",
+      "count": 36
+    },
+    {
+      "block": "Q",
+      "title": "Экзамен: расчётные задачи",
+      "file": "content/questions/Q-exam-calc.md",
+      "count": 15
     }
   ],
   "cheatsheet": "content/cheatsheet.md",

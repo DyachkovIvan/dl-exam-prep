@@ -3,6 +3,9 @@
 import { renderMarkdown, renderInline, decorate, typeset } from './md.js';
 import { store, humanInterval } from './store.js';
 import { loadDeck, saveDeck, newCard, schedule, previewIntervals, deckStats, isDue, isNew, isHard } from './srs.js';
+import { isInteractive, mountQuiz, quizStatic } from './quiz.js';
+
+const EXAM_PRIORITIES = ['P0', 'P1'];
 
 export function initTrainer(questions) {
   const el = id => document.getElementById(id);
@@ -10,15 +13,20 @@ export function initTrainer(questions) {
 
   const state = {
     mode: store.get('trainer-mode', 'due'),
+    bank: store.get('trainer-bank', ''),
     block: null,
     query: '',
     list: false,
     queue: [],
     index: 0,
-    revealed: false
+    revealed: false,
+    quizFor: null,   // id вопроса, для которого сейчас нарисован тест
+    quizCtl: null,
+    quizScore: null
   };
 
   el('srsMode').value = state.mode;
+  el('bankFilter').value = state.bank;
 
   /* ---------- фильтрация ---------- */
   const blocks = [];
@@ -27,9 +35,11 @@ export function initTrainer(questions) {
   });
 
   function matches(q) {
+    if (state.bank === 'exam' && !EXAM_PRIORITIES.includes(q.priority)) return false;
+    if (state.bank === 'tests' && !isInteractive(q)) return false;
     if (state.block && q.block !== state.block) return false;
     if (state.query) {
-      const hay = `${q.id} ${q.question} ${q.answer}`.toLowerCase();
+      const hay = `${q.id} ${q.question} ${q.answer} ${(q.options || []).map(o => o.text).join(' ')}`.toLowerCase();
       if (!hay.includes(state.query.toLowerCase())) return false;
     }
     const card = deck[q.id];
@@ -39,12 +49,18 @@ export function initTrainer(questions) {
     return true;
   }
 
-  function rebuild(keepPosition = false) {
-    const pool = questions.filter(matches);
-    // к повторению — сначала просроченные и новые, дальше по алфавиту id
-    state.queue = pool;
-    if (!keepPosition || state.index >= state.queue.length) state.index = 0;
+  /** Следующая карточка начинается с чистого теста. */
+  function resetCard() {
     state.revealed = false;
+    state.quizFor = null;
+    state.quizCtl = null;
+    state.quizScore = null;
+  }
+
+  function rebuild(keepPosition = false) {
+    state.queue = questions.filter(matches);
+    if (!keepPosition || state.index >= state.queue.length) state.index = 0;
+    resetCard();
     render();
   }
 
@@ -79,6 +95,27 @@ export function initTrainer(questions) {
   }
 
   /* ---------- карточка ---------- */
+  function renderQuiz(q) {
+    const box = el('cardQuiz');
+    if (!isInteractive(q)) {
+      box.hidden = true;
+      box.innerHTML = '';
+      state.quizFor = null;
+      return;
+    }
+    if (state.quizFor !== q.id) {
+      state.quizFor = q.id;
+      state.quizScore = null;
+      state.quizCtl = mountQuiz(box, q, ({ score }) => {
+        state.quizScore = score;
+        state.revealed = true;
+        render();
+      });
+    }
+    // ответ открыли кнопкой, не проверяя, — просто подсвечиваем верные варианты
+    if (state.revealed) state.quizCtl?.reveal();
+  }
+
   function render() {
     renderStats();
     el('cardWrap').hidden = state.list;
@@ -91,6 +128,7 @@ export function initTrainer(questions) {
       el('cardQ').textContent = state.mode === 'due'
         ? 'На сегодня всё повторено. Переключитесь на «Все подряд» или возвращайтесь завтра.'
         : 'Под фильтр ничего не попало — измените запрос или режим.';
+      el('cardQuiz').hidden = true;
       el('cardA').hidden = true;
       el('cardCount').textContent = '';
       el('revealRow').hidden = false;
@@ -100,27 +138,36 @@ export function initTrainer(questions) {
 
     const card = deck[q.id];
     const tags = [];
+    if (q.priority) tags.push(`<span class="tag prio p${q.priority[1]}">${q.priority}</span>`);
+    if (isInteractive(q)) tags.push('<span class="tag">тест</span>');
     if (isNew(card)) tags.push('<span class="tag new">новый</span>');
     else if (isHard(card)) tags.push('<span class="tag lapse">трудный</span>');
     else tags.push(`<span class="tag">интервал ${humanInterval(card.interval || 1)}</span>`);
 
     el('cardMeta').innerHTML = `<i>${q.id}</i>${q.blockTitle}${tags.join('')}`;
     el('cardQ').innerHTML = renderInline(q.question);
+    renderQuiz(q);
 
     const answer = el('cardA');
     answer.innerHTML = renderMarkdown(q.answer);
     decorate(answer);
-    answer.hidden = !state.revealed;
+    answer.hidden = !state.revealed || !q.answer;
 
     el('cardCount').textContent = `${state.index + 1} / ${state.queue.length}`;
     el('revealRow').hidden = state.revealed;
+    el('revealBtn').textContent = isInteractive(q) ? 'Сдаться и показать ответ' : 'Показать ответ';
     el('gradeRow').hidden = !state.revealed;
 
+    document.querySelectorAll('#gradeRow .grade').forEach(b => b.classList.remove('suggest'));
     if (state.revealed) {
       const iv = previewIntervals(card || newCard());
       el('iv2').textContent = humanInterval(iv[1]);
       el('iv3').textContent = humanInterval(iv[2]);
       el('iv4').textContent = humanInterval(iv[3]);
+      // тест проверен автоматически — подсказываем оценку для интервального повторения
+      if (state.quizScore !== null) {
+        document.querySelector(`#gradeRow [data-grade="${[1, 2, 3][state.quizScore]}"]`)?.classList.add('suggest');
+      }
       typeset(el('card'));
     }
   }
@@ -146,7 +193,7 @@ export function initTrainer(questions) {
       summary.innerHTML = `<b>${q.id}</b>${renderInline(q.question)}`;
       const body = document.createElement('div');
       body.className = 'body';
-      body.innerHTML = renderMarkdown(q.answer);
+      body.innerHTML = quizStatic(q) + renderMarkdown(q.answer);
       decorate(body);
       details.append(summary, body);
       details.addEventListener('toggle', () => { if (details.open) typeset(body); });
@@ -155,11 +202,15 @@ export function initTrainer(questions) {
   }
 
   /* ---------- события ---------- */
-  el('revealBtn').addEventListener('click', () => { state.revealed = true; render(); });
+  el('revealBtn').addEventListener('click', () => {
+    if (!state.queue[state.index]) return;
+    state.revealed = true;
+    render();
+  });
   el('skipBtn').addEventListener('click', () => {
     if (!state.queue.length) return;
     state.index = (state.index + 1) % state.queue.length;
-    state.revealed = false;
+    resetCard();
     render();
   });
 
@@ -182,13 +233,19 @@ export function initTrainer(questions) {
     } else {
       state.index = (state.index + 1) % state.queue.length;
     }
-    state.revealed = false;
+    resetCard();
     render();
   });
 
   el('srsMode').addEventListener('change', e => {
     state.mode = e.target.value;
     store.set('trainer-mode', state.mode);
+    rebuild();
+  });
+
+  el('bankFilter').addEventListener('change', e => {
+    state.bank = e.target.value;
+    store.set('trainer-bank', state.bank);
     rebuild();
   });
 
@@ -200,11 +257,14 @@ export function initTrainer(questions) {
     render();
   });
 
-  /* клавиатура: пробел — показать, 1–4 — оценка */
+  /* клавиатура: пробел — показать, 1–4 — оценка; в тесте до проверки 1–4 не работают */
   document.addEventListener('keydown', e => {
-    if (document.getElementById('pane-train').hidden) return;
-    if (e.target.matches('input, select, textarea')) return;
-    if (e.code === 'Space') { e.preventDefault(); state.revealed ? null : (state.revealed = true, render()); }
+    if (document.getElementById('pane-train').hidden || state.list) return;
+    if (e.target.matches('input, select, textarea, .opt, .cell')) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!state.revealed) el('revealBtn').click();
+    }
     if (state.revealed && ['1', '2', '3', '4'].includes(e.key)) {
       document.querySelector(`#gradeRow [data-grade="${e.key}"]`)?.click();
     }
