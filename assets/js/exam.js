@@ -46,18 +46,43 @@ export function initExam(questions) {
     return true;
   }
 
+  const isTopic = q => q.kind === 'topic';
+
+  /** Состав билета по выбранному формату: тесты идут первыми, затем вопросы по темам. */
+  function buildTicket() {
+    const format = el('examFormat').value;
+    const nTests = Number(el('examCount').value);
+    const nTopics = Number(el('examTopicCount').value);
+    const pick = (pool, n) => shuffled(pool).slice(0, Math.min(n, pool.length));
+    const tests = () => pick(questions.filter(q => isInteractive(q) && inPool(q)), nTests);
+    // темы идут по порядку списка экзамена, а не вперемешку
+    const topics = () => pick(questions.filter(isTopic), nTopics).sort((a, b) => a.topicNum - b.topicNum);
+
+    if (format === 'complex') return [...tests(), ...topics()];
+    if (format === 'tests') return tests();
+    if (format === 'topics') return topics();
+    return pick(questions.filter(inPool), nTests);
+  }
+
+  function syncFormat() {
+    const f = el('examFormat').value;
+    el('wrapTests').hidden = f === 'topics';
+    el('wrapTopics').hidden = f === 'tests' || f === 'bank';
+  }
+  el('examFormat').addEventListener('change', syncFormat);
+  syncFormat();
+
   /* ---------- запуск ---------- */
   el('examStart').addEventListener('click', () => {
-    const wanted = Number(el('examCount').value);
-    const pool = questions.filter(inPool);
-    if (!pool.length) {
+    const items = buildTicket();
+    if (!items.length) {
       el('examEmpty').hidden = false;
       return;
     }
     el('examEmpty').hidden = true;
 
     run = {
-      items: shuffled(pool).slice(0, Math.min(wanted, pool.length)),
+      items,
       index: 0,
       scores: [],
       quiz: null,
@@ -96,8 +121,11 @@ export function initExam(questions) {
   /* ---------- вопрос ---------- */
   function renderQuestion() {
     const q = run.items[run.index];
-    el('examMeta').innerHTML = `<i>${q.id}</i>${q.blockTitle}${isInteractive(q) ? '<span class="tag">тест</span>' : ''}`;
+    const part = isTopic(q) ? '<span class="tag">тема</span>' : isInteractive(q) ? '<span class="tag">тест</span>' : '';
+    el('examMeta').innerHTML = `<i>${q.id}</i>${q.blockTitle}${part}`;
     el('examQ').innerHTML = renderInline(q.question);
+    el('examPoints').hidden = true;
+    el('examPoints').innerHTML = '';
 
     const a = el('examA');
     a.innerHTML = renderMarkdown(q.answer);
@@ -121,15 +149,34 @@ export function initExam(questions) {
     }
 
     el('examReveal').hidden = false;
-    el('examReveal').textContent = isInteractive(q) ? 'Сдаться и показать ответ' : 'Показать эталон';
-    el('examHint').textContent = isInteractive(q)
-      ? 'Выберите ответ и нажмите «Проверить» — баллы выставятся сами.'
-      : 'Сначала ответьте сами — так режим работает.';
+    el('examReveal').textContent = isTopic(q) ? 'Показать план ответа' : isInteractive(q) ? 'Сдаться и показать ответ' : 'Показать эталон';
+    el('examHint').textContent = isTopic(q)
+      ? 'Ответьте вслух или письменно, затем отметьте в плане то, что действительно назвали.'
+      : isInteractive(q)
+        ? 'Выберите ответ и нажмите «Проверить» — баллы выставятся сами.'
+        : 'Сначала ответьте сами — так режим работает.';
     el('examHint').hidden = false;
     el('examJudge').hidden = true;
     el('examNext').hidden = true;
     el('examCounter').textContent = `${run.index + 1} / ${run.items.length}`;
     el('examBar').style.width = `${(run.index / run.items.length) * 100}%`;
+  }
+
+  /** План ответа по теме: пункты-галочки; балл — доля названных пунктов. */
+  function showPoints(q) {
+    const box = el('examPoints');
+    box.innerHTML = `<p class="quizhint">Что вы назвали в ответе?</p>` + q.points.map((p, i) =>
+      `<label class="pt"><input type="checkbox" data-i="${i}"><span>${renderInline(p)}</span></label>`).join('');
+    box.hidden = false;
+    el('examReveal').hidden = true;
+    el('examHint').hidden = true;
+    el('examNext').hidden = false;
+    typeset(box);
+  }
+  function topicScore() {
+    const boxes = [...el('examPoints').querySelectorAll('input')];
+    const share = boxes.filter(b => b.checked).length / (boxes.length || 1);
+    return share >= 0.8 ? 2 : share >= 0.4 ? 1 : 0;
   }
 
   function showAnswer() {
@@ -148,6 +195,8 @@ export function initExam(questions) {
 
   el('examReveal').addEventListener('click', () => {
     if (!run) return;
+    const cur = run.items[run.index];
+    if (isTopic(cur)) { showPoints(cur); return; }
     if (run.quiz) {
       // сдался в тесте — показываем верный ответ, балл 0
       run.quiz.reveal();
@@ -160,7 +209,10 @@ export function initExam(questions) {
     el('examJudge').hidden = false;
   });
 
-  el('examNext').addEventListener('click', () => { if (run) advance(run.auto ?? 0); });
+  el('examNext').addEventListener('click', () => {
+    if (!run) return;
+    advance(isTopic(run.items[run.index]) ? topicScore() : run.auto ?? 0);
+  });
 
   el('examJudge').addEventListener('click', e => {
     const btn = e.target.closest('[data-ok]');
@@ -193,7 +245,7 @@ export function initExam(questions) {
     el('examResult').innerHTML = `
       <div class="result">
         <div class="scorebig"><b>${percent}%</b><span>${got} из ${max} баллов${timeout ? ' · время вышло' : aborted ? ' · завершено досрочно' : ''}</span></div>
-        <p class="hint">${answered.length} ${plural(answered.length, 'вопрос', 'вопроса', 'вопросов')} за ${minutes || '<1'} мин. Каждый вопрос: 2 балла за полный ответ, 1 за частичный. Тесты проверяются автоматически.</p>
+        <p class="hint">${answered.length} ${plural(answered.length, 'вопрос', 'вопроса', 'вопросов')} за ${minutes || '<1'} мин. Каждый вопрос: 2 балла за полный ответ, 1 за частичный. Тесты проверяются автоматически; по темам балл ставится по доле названных пунктов (≥ 80 % — 2, ≥ 40 % — 1).</p>
         <h2 class="secttl">По блокам</h2>
         <div class="bars">
           ${Object.entries(byBlock).map(([name, v]) => {

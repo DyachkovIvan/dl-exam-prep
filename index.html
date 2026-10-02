@@ -128,12 +128,23 @@
       <div class="prose"><h1>Режим экзамена</h1></div>
 
       <div id="examSetup">
-        <p class="lede">Случайный билет из банка вопросов с таймером. Тесты с вариантами проверяются
+        <p class="lede">Билет на время: <b>комплексный</b> — сначала тесты, затем открытые вопросы по темам курса. Тесты с вариантами проверяются
            автоматически; на открытые вопросы отвечайте вслух или письменно, затем открывайте эталон
            и честно отмечайте, совпал он или нет.</p>
         <div class="setup">
-          <label class="selectwrap"><span>Вопросов</span>
-            <select id="examCount"><option>10</option><option selected>15</option><option>20</option><option>30</option></select>
+          <label class="selectwrap"><span>Формат</span>
+            <select id="examFormat">
+              <option value="complex" selected>комплексный: тесты + темы</option>
+              <option value="tests">только тесты</option>
+              <option value="topics">только вопросы по темам</option>
+              <option value="bank">случайные из банка</option>
+            </select>
+          </label>
+          <label class="selectwrap" id="wrapTests"><span>Тестов</span>
+            <select id="examCount"><option>5</option><option>10</option><option selected>15</option><option>20</option><option>30</option></select>
+          </label>
+          <label class="selectwrap" id="wrapTopics"><span>Вопросов по темам</span>
+            <select id="examTopicCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>8</option><option>16</option></select>
           </label>
           <label class="selectwrap"><span>Время</span>
             <select id="examTime">
@@ -141,6 +152,7 @@
               <option value="10">10 минут</option>
               <option value="20" selected>20 минут</option>
               <option value="40">40 минут</option>
+              <option value="60">60 минут</option>
             </select>
           </label>
           <label class="selectwrap"><span>Блоки</span>
@@ -171,6 +183,7 @@
           <h2 class="q" id="examQ"></h2>
           <div class="quiz" id="examQuiz" hidden></div>
           <div class="a" id="examA" hidden></div>
+          <div class="topicpoints" id="examPoints" hidden></div>
         </article>
         <div class="controls">
           <button class="btn primary" id="examReveal" type="button">Показать эталон</button>
