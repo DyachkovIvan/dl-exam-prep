@@ -66,3 +66,32 @@ $$H_{out} = \left\lfloor \frac{H_{in} + 2p - d(k-1) - 1}{s}\right\rfloor + 1 \xr
 | **Взрыв (exploding)** | **Gradient clipping**, нормализации, меньший lr, аккуратная инициализация. Функции активации тут **не помогают** |
 
 ---
+
+## Ш.7 Формулы тем 8–17
+
+**GCN:** $$H^{(l+1)} = \sigma\big(\tilde D^{-1/2}\tilde A\tilde D^{-1/2}H^{(l)}W^{(l)}\big), \quad \tilde A = A + I$$
+**GraphSAGE:** $$h_v^k = \sigma\big(W^k\cdot[\,h_v^{k-1}\,\|\,\text{AGG}(\{h_u^{k-1}\})\,]\big), \quad h_v^k \leftarrow h_v^k/\|h_v^k\|_2$$
+**Attention:** $$\text{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V$$
+**VAE:** $$L = \|x-\hat x\|^2 + D_{KL}\big(N(\mu,\sigma^2)\,\|\,N(0,I)\big), \quad z = \mu + \sigma\odot\varepsilon$$
+**GAN:** $$\min_G\max_D\ \mathbb{E}\log D(x) + \mathbb{E}\log\big(1-D(G(z))\big), \quad L_G^{ns} = -\mathbb{E}\log D(G(z)), \quad D^* = \tfrac{p_{data}}{p_{data}+p_g}$$
+**Диффузия:** $$x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\varepsilon, \qquad L = \|\varepsilon - \varepsilon_\theta(x_t,t)\|^2$$
+**Classifier-free guidance:** $$\tilde\varepsilon = (1+w)\,\varepsilon_\theta(x_t,c) - w\,\varepsilon_\theta(x_t)$$
+**Q-learning:** $$Q(s,a)\leftarrow Q(s,a)+\alpha\big[r+\gamma\max_{a'}Q(s',a')-Q(s,a)\big]$$
+**SARSA:** $$Q(s,a)\leftarrow Q(s,a)+\alpha\big[r+\gamma\,Q(s',a')-Q(s,a)\big]$$
+**TD(0):** $$V(s)\leftarrow V(s)+\alpha\big[r+\gamma V(s')-V(s)\big]$$
+**REINFORCE:** $$\nabla_\theta J = \mathbb{E}\big[\nabla_\theta\log\pi_\theta(a|s)\,(G_t-b)\big]$$
+**DQN loss:** $$\big(r+\gamma\max_{a'}Q(s',a';\theta^-)-Q(s,a;\theta)\big)^2$$
+**FGSM:** $$x_{adv} = x + \varepsilon\,\operatorname{sign}\big(\nabla_x J(\theta,x,y)\big)$$
+
+## Ш.8 Потери и метрики (тема 17)
+
+| | Формула | Когда |
+|---|---|---|
+| Huber | ½e² при \|e\| ≤ δ, иначе δ(\|e\| − ½δ) | регрессия с выбросами |
+| Focal | −(1 − pₜ)^γ log pₜ | дисбаланс классов |
+| KL | Σ p log(p/q) | распределения; CE = H(p) + KL |
+| Precision | TP/(TP + FP) | цена ложной тревоги |
+| Recall | TP/(TP + FN) | нельзя пропускать |
+| F1 | 2PR/(P + R) | баланс при дисбалансе |
+
+**Диагностика:** высокая ошибка на train → смещение (модель больше, дольше обучать); train ≪ dev → дисперсия (регуляризация, данные, аугментация).

@@ -101,6 +101,12 @@
       "id": "rl",
       "title": "Обучение с подкреплением: MDP, Q-обучение, DQN",
       "file": "content/theory/16-rl.md"
+    },
+    {
+      "num": 17,
+      "id": "foundations",
+      "title": "Основы обучения: функции потерь, метрики, bias/variance, transfer learning",
+      "file": "content/theory/17-foundations.md"
     }
   ],
   "questions": [
@@ -205,6 +211,12 @@
       "title": "Экзамен: расчётные задачи",
       "file": "content/questions/Q-exam-calc.md",
       "count": 15
+    },
+    {
+      "block": "R",
+      "title": "Основы: потери, метрики, bias/variance, transfer, adversarial, RL",
+      "file": "content/questions/R-foundations.md",
+      "count": 19
     }
   ],
   "cheatsheet": "content/cheatsheet.md",
