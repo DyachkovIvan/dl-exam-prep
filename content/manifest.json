@@ -208,5 +208,6 @@
     }
   ],
   "cheatsheet": "content/cheatsheet.md",
-  "express": "content/quiz/express.md"
+  "express": "content/quiz/express.md",
+  "topics": "content/quiz/topics.md"
 }

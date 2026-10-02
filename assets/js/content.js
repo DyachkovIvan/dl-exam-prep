@@ -15,11 +15,12 @@ async function text(path) {
 export async function loadContent() {
   const manifest = await (await fetch('content/manifest.json', { cache: 'no-cache' })).json();
 
-  const [theoryFiles, questionFiles, cheatsheet, express] = await Promise.all([
+  const [theoryFiles, questionFiles, cheatsheet, express, topicsMd] = await Promise.all([
     Promise.all(manifest.theory.map(t => text(t.file))),
     Promise.all(manifest.questions.map(q => text(q.file))),
     text(manifest.cheatsheet),
-    text(manifest.express)
+    text(manifest.express),
+    manifest.topics ? text(manifest.topics) : Promise.resolve('')
   ]);
 
   const theory = manifest.theory.map((meta, i) => ({ ...meta, body: theoryFiles[i] }));
@@ -34,6 +35,17 @@ export async function loadContent() {
   // экспресс-вопросы попадают в общий банк — они короткие и хорошо работают карточками
   parseExpress(express).forEach(q => {
     questions.push({ ...q, block: 'Э', blockTitle: 'Экспресс-вопросы' });
+  });
+
+  // открытые вопросы по темам: T1…T16, ответ — список пунктов, которые надо назвать
+  parseQuestions(topicsMd).forEach(q => {
+    const points = q.answer.split('\n').map(l => l.match(/^- (.+)$/)?.[1]).filter(Boolean);
+    const num = Number(q.id.slice(1));
+    questions.push({
+      ...q, kind: 'topic', points, topicNum: num, priority: 'P0',
+      block: 'Т', blockTitle: 'Вопросы по темам',
+      answer: `**Что нужно назвать в ответе** (тема ${num} в теории):\n\n${q.answer}`
+    });
   });
 
   return { manifest, theory, questions, cheatsheet };

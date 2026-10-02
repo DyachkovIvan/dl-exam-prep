@@ -199,3 +199,10 @@
 .btn.grade.suggest{outline:2px solid var(--accent);outline-offset:2px}
 .card .meta .tag.prio{color:var(--ink-3)}
 .card .meta .tag.prio.p0,.card .meta .tag.prio.p1{color:var(--accent-ink);border-color:currentColor}
+
+/* ---------- вопрос по теме: план ответа ---------- */
+.topicpoints{margin-top:16px;border-top:1px solid var(--rule);padding-top:14px;display:grid;gap:6px}
+.topicpoints .pt{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.topicpoints .pt:hover{border-color:var(--rule-strong)}
+.topicpoints .pt input{margin:3px 0 0;accent-color:var(--accent);flex:none}
+.topicpoints .pt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
